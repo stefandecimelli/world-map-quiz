@@ -2,7 +2,7 @@ import { MapContainer, TileLayer, GeoJSON } from 'react-leaflet'
 import style from "./App.module.css"
 import 'leaflet/dist/leaflet.css';
 import { features } from "./assets/geodata.json"
-import { GeoJsonObject } from 'geojson';
+import { Feature, GeoJsonObject } from 'geojson';
 import { ChangeEvent, useMemo, useState } from 'react';
 import L from 'leaflet';
 
@@ -10,17 +10,13 @@ function App() {
 
   const [selectedCountries, setSelectedCountries] = useState<GeoJsonObject[]>([]);
   const [inputValue, setInputValue] = useState("");
-
-  const countryNames = useMemo(() => features.map(country => ({
-    names: new Set([
-      country.properties.name.toLowerCase(),
-    ]),
-    co: new L.GeoJSON(country as GeoJsonObject)
-  })), [])
-
   const [x, setX] = useState(51.505);
   const [y, setY] = useState(0);
 
+  const countryNames = useMemo(() => (features as Feature[]).map(country => ({
+    names: getCountryNames(country),
+    co: new L.GeoJSON(country as GeoJsonObject)
+  })), [])
 
   const handleInput = async (e: ChangeEvent<HTMLInputElement>) => {
     const countryGuess = e.target.value;
@@ -56,3 +52,19 @@ function App() {
 }
 
 export default App
+
+function getCountryNames(country: Feature): Set<string> {
+  return new Set([
+    country.properties?.name?.toLowerCase(),
+    country.properties?.name?.toLowerCase().replace("the ", ""),
+    country.properties?.name_long?.toLowerCase(),
+    country.properties?.name_long?.toLowerCase().replace("the ", ""),
+    country.properties?.brk_name?.toLowerCase(),
+    country.properties?.brk_name?.toLowerCase().replace("the ", ""),
+    country.properties?.formal_en?.toLowerCase(),
+    country.properties?.formal_en?.toLowerCase().replace("the ", ""),
+    country.properties?.admin?.toLowerCase(),
+    country.properties?.admin?.toLowerCase().replace("the ", ""),
+  ]);
+}
+
