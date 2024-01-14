@@ -27,7 +27,7 @@ html {
   bottom: 5vw;
   z-index: 99999;
   /* right: calc(50vw - var(--input-box-width)/2); */
-  background-color: teal;
+  background-color: rgb(0, 0, 100, 0.6);
   border-radius: 10px;
   padding: 0.5rem;
 }
