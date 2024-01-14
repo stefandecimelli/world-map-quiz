@@ -7,11 +7,11 @@ import { ChangeEvent, useMemo, useState } from 'react';
 import L from 'leaflet';
 
 function App() {
-
   const [selectedCountries, setSelectedCountries] = useState<GeoJsonObject[]>([]);
   const [selectedCountryIndexes, setSelectedCountryIndexes] = useState<number[]>([]);
   const [inputValue, setInputValue] = useState("");
-  const [x, setX] = useState(51.505);
+  const [displayModel, setDisplayModel] = useState(false);
+  const [x, setX] = useState(50);
   const [y, setY] = useState(0);
 
   const countryNames = useMemo(() => (features as Feature[]).map(country => ({
@@ -34,6 +34,14 @@ function App() {
     }
   }
 
+  const handleQuit = () => {
+    setSelectedCountries([]);
+    setSelectedCountryIndexes([]);
+    setDisplayModel(true);
+    setX(50);
+    setY(0);
+  }
+
   return (
     <div>
       <div className={style.mapContainer}>
@@ -49,7 +57,23 @@ function App() {
           <input id="guess" className={style.input} type='text' onChange={handleInput} value={inputValue} />
           <div className={style.indicator}>{selectedCountryIndexes.length}/{features.length}</div>
         </div>
+        <div className={style.quitButtonContainer}>
+          <button className={style.quitButton} onClick={handleQuit}>Quit</button>
+        </div>
       </div>
+      {displayModel && <div className={style.modal}>
+        <div className={style.modalContent}>
+          <button className={style.closeModel} onClick={() => setDisplayModel(false)}>Restart</button>
+          <p>Countries Missed:</p>
+          <div>
+            {
+              Array.from({length: features.length}).filter((_, i) => !(i in selectedCountryIndexes)).map((_, i) => {
+                return <p>{features[i]?.properties?.NAME} <span>({Array.from(countryNames[i]?.names).join(", ")})</span></p>
+              })
+            }
+          </div>
+        </div>
+      </div>}
     </div >
   )
 }
@@ -58,18 +82,18 @@ export default App
 
 function getCountryNames(country: Feature): Set<string> {
   return new Set([
-    country.properties?.NAME?.toLowerCase(),
-    country.properties?.NAME?.toLowerCase().replace("the ", ""),
-    country.properties?.ADMIN?.toLowerCase(),
-    country.properties?.ADMIN?.toLowerCase().replace("the ", ""),
-    country.properties?.NAME_SORT?.toLowerCase(),
-    country.properties?.NAME_SORT?.toLowerCase().replace("the ", ""),
-    country.properties?.NAME_LONG?.toLowerCase(),
-    country.properties?.NAME_LONG?.toLowerCase().replace("the ", ""),
-    country.properties?.BRK_NAME?.toLowerCase(),
-    country.properties?.BRK_NAME?.toLowerCase().replace("the ", ""),
-    country.properties?.FORMAL_EN?.toLowerCase(),
-    country.properties?.FORMAL_EN?.toLowerCase().replace("the ", ""),
+    country.properties?.NAME?.toLowerCase().replace(".", ""),
+    country.properties?.NAME?.toLowerCase().replace("the ", "").replace(".", ""),
+    country.properties?.ADMIN?.toLowerCase().replace(".", ""),
+    country.properties?.ADMIN?.toLowerCase().replace("the ", "").replace(".", ""),
+    country.properties?.NAME_SORT?.toLowerCase().replace(".", ""),
+    country.properties?.NAME_SORT?.toLowerCase().replace("the ", "").replace(".", ""),
+    country.properties?.NAME_LONG?.toLowerCase().replace(".", ""),
+    country.properties?.NAME_LONG?.toLowerCase().replace("the ", "").replace(".", ""),
+    country.properties?.BRK_NAME?.toLowerCase().replace(".", ""),
+    country.properties?.BRK_NAME?.toLowerCase().replace("the ", "").replace(".", ""),
+    country.properties?.FORMAL_EN?.toLowerCase().replace(".", ""),
+    country.properties?.FORMAL_EN?.toLowerCase().replace("the ", "").replace(".", ""),
   ]);
 }
 
