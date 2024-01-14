@@ -1,7 +1,7 @@
 import { MapContainer, TileLayer, GeoJSON } from 'react-leaflet'
 import style from "./App.module.css"
 import 'leaflet/dist/leaflet.css';
-import { features } from "./assets/geodata.json"
+import { features } from "./assets/countries.json"
 import { Feature, GeoJsonObject } from 'geojson';
 import { ChangeEvent, useMemo, useState } from 'react';
 import L from 'leaflet';
@@ -58,16 +58,18 @@ export default App
 
 function getCountryNames(country: Feature): Set<string> {
   return new Set([
-    country.properties?.name?.toLowerCase(),
-    country.properties?.name?.toLowerCase().replace("the ", ""),
-    country.properties?.name_long?.toLowerCase(),
-    country.properties?.name_long?.toLowerCase().replace("the ", ""),
-    country.properties?.brk_name?.toLowerCase(),
-    country.properties?.brk_name?.toLowerCase().replace("the ", ""),
-    country.properties?.formal_en?.toLowerCase(),
-    country.properties?.formal_en?.toLowerCase().replace("the ", ""),
-    country.properties?.admin?.toLowerCase(),
-    country.properties?.admin?.toLowerCase().replace("the ", ""),
+    country.properties?.NAME?.toLowerCase(),
+    country.properties?.NAME?.toLowerCase().replace("the ", ""),
+    country.properties?.ADMIN?.toLowerCase(),
+    country.properties?.ADMIN?.toLowerCase().replace("the ", ""),
+    country.properties?.NAME_SORT?.toLowerCase(),
+    country.properties?.NAME_SORT?.toLowerCase().replace("the ", ""),
+    country.properties?.NAME_LONG?.toLowerCase(),
+    country.properties?.NAME_LONG?.toLowerCase().replace("the ", ""),
+    country.properties?.BRK_NAME?.toLowerCase(),
+    country.properties?.BRK_NAME?.toLowerCase().replace("the ", ""),
+    country.properties?.FORMAL_EN?.toLowerCase(),
+    country.properties?.FORMAL_EN?.toLowerCase().replace("the ", ""),
   ]);
 }
 
