@@ -9,6 +9,7 @@ import L from 'leaflet';
 function App() {
 
   const [selectedCountries, setSelectedCountries] = useState<GeoJsonObject[]>([]);
+  const [selectedCountryIndexes, setSelectedCountryIndexes] = useState<number[]>([]);
   const [inputValue, setInputValue] = useState("");
   const [x, setX] = useState(51.505);
   const [y, setY] = useState(0);
@@ -21,7 +22,8 @@ function App() {
   const handleInput = async (e: ChangeEvent<HTMLInputElement>) => {
     const countryGuess = e.target.value;
     const i = countryNames.findIndex(c => c.names.has(countryGuess.toLowerCase()));
-    if (i >= 0) {
+    if (i >= 0 && !selectedCountryIndexes.includes(i)) {
+      setSelectedCountryIndexes([...selectedCountryIndexes, i])
       setSelectedCountries([...selectedCountries, features[i] as GeoJsonObject]);
       setX(countryNames[i].co.getBounds().getCenter().lat)
       setY(countryNames[i].co.getBounds().getCenter().lng)
@@ -43,8 +45,9 @@ function App() {
           <GeoJSON data={{ "type": "FeatureCollection", "features": selectedCountries } as GeoJsonObject} />
         </MapContainer>
         <div className={style.inputContainer}>
-          <label htmlFor="guess" >Enter a country guess:</label>
+          <label htmlFor="guess" >Enter a country:</label>
           <input id="guess" className={style.input} type='text' onChange={handleInput} value={inputValue} />
+          <div className={style.indicator}>{selectedCountryIndexes.length}/{features.length}</div>
         </div>
       </div>
     </div >
