@@ -6,7 +6,7 @@ import { Feature, GeoJsonObject } from 'geojson';
 import { ChangeEvent, useEffect, useMemo, useState } from 'react';
 import L from 'leaflet';
 
-const DEFAULT_TIMER = 3; // Seconds
+const DEFAULT_TIMER = 75; // Seconds
 
 function App() {
   const [selectedCountries, setSelectedCountries] = useState<GeoJsonObject[]>([]);
@@ -83,8 +83,8 @@ function App() {
           <div className={style.indicator}>{numberAchieved}/{numberAttempted}</div>
         </div>
         <div className={style.quitButtonContainer}>
+          <div>{~~(seconds / 60)}m {seconds % 60}s</div>
           <button className={style.quitButton} onClick={handleQuit}>Quit</button>
-          <div>{seconds}s</div>
         </div>
       </div>
       {displayModel && <div className={style.modal}>

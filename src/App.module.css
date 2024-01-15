@@ -24,10 +24,14 @@ html {
 
 .quitButtonContainer {
   position: absolute;
+  display: flex;
   right: 1vw;
   top: 1vw;
   z-index: 99999;
   cursor: pointer;
+  justify-content: center;
+  gap: 1rem;
+  align-items: center;
 }
 
 button {
