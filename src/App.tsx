@@ -105,7 +105,7 @@ function App() {
 
 export default App
 
-function Map({ selectedCountries, x, y }: { selectedCountries: Feature[], x: number, y: number }) {
+function Map({ selectedCountries, x, y }: { selectedCountries: GeoJsonObject[], x: number, y: number }) {
   const geoJsonRef = useRef<L.GeoJSON>(null);
   const mapRef = useRef<L.Map | null>(null);
 
@@ -116,13 +116,11 @@ function Map({ selectedCountries, x, y }: { selectedCountries: Feature[], x: num
     }
   }, [selectedCountries]);
 
-  const scrollTo = (x: number, y: number) => {
+  useEffect(() =>  {
     if (mapRef.current) {
-      mapRef.current.flyTo([x, y]);
+      mapRef.current.flyTo([x % 90, y % 90]);
     }
-  };
-
-  useEffect(() => scrollTo(x, y), [x, y]);
+  }, [x, y]);
 
   return <MapContainer
     center={[x, y]}
@@ -131,7 +129,7 @@ function Map({ selectedCountries, x, y }: { selectedCountries: Feature[], x: num
     minZoom={3}
     className={style.map}
     maxBoundsViscosity={1}
-    maxBounds={[[-90, -180], [90, 180]]}
+    maxBounds={[[-180, -180], [180, 180]]}
     ref={mapRef}
   >
     <TileLayer
