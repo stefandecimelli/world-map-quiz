@@ -91,7 +91,9 @@ function App() {
               countryNames.map((_, i) => {
                 const altNames = Array.from(countryNames[i]?.names).join(", ");
                 const mainName = features[i]?.properties?.NAME;
-                return selectedCountryIndexes.includes(i) ? null : <p key={mainName}>{mainName} <span>({altNames})</span></p>
+                return selectedCountryIndexes.includes(i)
+                  ? null
+                  : <p key={mainName}>{mainName} <span>({altNames})</span></p>
               })
             }
           </div>
