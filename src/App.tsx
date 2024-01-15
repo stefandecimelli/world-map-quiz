@@ -131,9 +131,7 @@ function getCountryNames(country: Feature) {
 
   keys.forEach(key => {
     const processedNames = processString(country.properties?.[key]);
-    if (processedNames) {
-      processedNames.forEach(name => names.add(name));
-    }
+    processedNames?.forEach(name => names.add(name));
   });
 
   return names;
