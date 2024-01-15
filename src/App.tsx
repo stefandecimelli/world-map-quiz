@@ -6,7 +6,7 @@ import { Feature, GeoJsonObject } from 'geojson';
 import { ChangeEvent, useEffect, useMemo, useState } from 'react';
 import L from 'leaflet';
 
-const DEFAULT_TIMER = 75; // Seconds
+const DEFAULT_TIMER = 1200; // Seconds
 
 function App() {
   const [selectedCountries, setSelectedCountries] = useState<GeoJsonObject[]>([]);
