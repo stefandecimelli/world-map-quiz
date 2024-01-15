@@ -66,3 +66,9 @@ select {
     scroll-behavior: auto !important;
   }
 }
+
+
+.leaflet-container {
+  background: #d4dadc;
+  outline-offset: 1px;
+}

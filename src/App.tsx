@@ -1,6 +1,6 @@
 import { MapContainer, TileLayer, GeoJSON } from 'react-leaflet'
-import style from "./App.module.css"
 import 'leaflet/dist/leaflet.css';
+import style from "./App.module.css"
 import { features } from "./assets/countries.json"
 import { Feature, GeoJsonObject } from 'geojson';
 import { ChangeEvent, useEffect, useMemo, useRef, useState } from 'react';
@@ -117,9 +117,7 @@ function Map({ selectedCountries, x, y }: { selectedCountries: GeoJsonObject[], 
   }, [selectedCountries]);
 
   useEffect(() =>  {
-    if (mapRef.current) {
-      mapRef.current.flyTo([x % 90, y % 90]);
-    }
+    mapRef.current && mapRef.current.panTo([x, y]);
   }, [x, y]);
 
   return <MapContainer
@@ -129,7 +127,7 @@ function Map({ selectedCountries, x, y }: { selectedCountries: GeoJsonObject[], 
     minZoom={3}
     className={style.map}
     maxBoundsViscosity={1}
-    maxBounds={[[-180, -180], [180, 180]]}
+    maxBounds={[[-360, -360], [360, 360]]}
     ref={mapRef}
   >
     <TileLayer
