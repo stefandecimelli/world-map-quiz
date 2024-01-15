@@ -95,6 +95,7 @@ label {
 }
 
 .modalContent {
+  position: relative;
   background-color: #fefefe;
   margin: 15% auto;
   padding: 20px;
@@ -103,8 +104,10 @@ label {
 }
 
 .closeModel {
+  position: absolute;
   color: #aaa;
-  float: right;
+  right: 0;
+  top:0;
   font-size: 28px;
   font-weight: bold;
 }
