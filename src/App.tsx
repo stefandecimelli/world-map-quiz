@@ -70,23 +70,7 @@ function App() {
   return (
     <div>
       <div className={style.mapContainer}>
-        <MapContainer
-          center={[x, y]}
-          zoom={4}
-          maxZoom={5}
-          minZoom={3}
-          className={style.map}
-          key={`${x}${y}`}
-          maxBoundsViscosity={1}
-          maxBounds={[[-90, -180], [90, 180]]}
-        >
-          <TileLayer
-            url="http://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}.png"
-            attribution="&copy;OpenStreetMap, &copy;CartoDB"
-            noWrap
-          />
-          <GeoJSON data={{ "type": "FeatureCollection", "features": selectedCountries } as GeoJsonObject} />
-        </MapContainer>
+        <Map selectedCountries={selectedCountries} x={x} y={y} />
         <div className={style.inputContainer}>
           <label htmlFor="guess" >Enter a country:</label>
           <input id="guess" className={style.input} type='text' onChange={handleInput} value={inputValue} />
@@ -107,7 +91,6 @@ function App() {
               countryNames.map((_, i) => {
                 const altNames = Array.from(countryNames[i]?.names).join(", ");
                 const mainName = features[i]?.properties?.NAME;
-                console.log(altNames, mainName, i, selectedCountryIndexes)
                 return selectedCountryIndexes.includes(i) ? null : <p key={mainName}>{mainName} <span>({altNames})</span></p>
               })
             }
@@ -119,6 +102,26 @@ function App() {
 }
 
 export default App
+
+function Map({ selectedCountries, x, y }: { selectedCountries: GeoJsonObject[], x: number, y: number }) {
+  return <MapContainer
+    center={[x, y]}
+    zoom={4}
+    maxZoom={5}
+    minZoom={3}
+    className={style.map}
+    key={`${x}${y}`}
+    maxBoundsViscosity={1}
+    maxBounds={[[-90, -180], [90, 180]]}
+  >
+    <TileLayer
+      url="http://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}.png"
+      attribution="&copy;OpenStreetMap, &copy;CartoDB"
+      noWrap
+    />
+    <GeoJSON data={{ "type": "FeatureCollection", "features": selectedCountries } as GeoJsonObject} />
+  </MapContainer>
+}
 
 function getCountryNames(country: Feature) {
   const keys = ['NAME', 'ADMIN', 'NAME_SORT', 'NAME_LONG', 'BRK_NAME', 'FORMAL_EN'];
