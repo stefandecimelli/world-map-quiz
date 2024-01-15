@@ -1,7 +1,6 @@
 import { MapContainer, TileLayer, GeoJSON } from 'react-leaflet'
 import 'leaflet/dist/leaflet.css';
 import style from "./App.module.css"
-import { features } from "./assets/countries.json"
 import { Feature, GeoJsonObject } from 'geojson';
 import { ChangeEvent, useEffect, useMemo, useRef, useState } from 'react';
 import L from 'leaflet';
@@ -13,6 +12,7 @@ function App() {
   const [selectedCountryIndexes, setSelectedCountryIndexes] = useState<number[]>([]);
   const [inputValue, setInputValue] = useState("");
   const [displayModel, setDisplayModel] = useState(false);
+  const [features, setFeatures] = useState<Feature[]>([]);
   const [seconds, setSeconds] = useState(DEFAULT_TIMER);
   const [x, setX] = useState(50);
   const [y, setY] = useState(0);
@@ -20,7 +20,24 @@ function App() {
   const countryNames = useMemo(() => (features as Feature[]).map(country => ({
     names: getCountryNames(country),
     co: new L.GeoJSON(country as GeoJsonObject)
-  })), [])
+  })), [features])
+
+  useEffect(() => {
+    const fetchCountries = async () => {
+      try {
+        const response = await fetch('https://stefandecimelli.github.io/static-json-assets/countries.json');
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        const data = await response.json();
+        setFeatures(data.features);
+      } catch (error) {
+        console.error('Could not fetch countries:', error);
+      }
+    };
+
+    fetchCountries();
+  }, []);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -116,7 +133,7 @@ function Map({ selectedCountries, x, y }: { selectedCountries: GeoJsonObject[], 
     }
   }, [selectedCountries]);
 
-  useEffect(() =>  {
+  useEffect(() => {
     mapRef.current && mapRef.current.panTo([x, y]);
   }, [x, y]);
 
@@ -160,4 +177,3 @@ function processString(str: string) {
     noAccents.replace("the ", "").replace(".", "").trim(),
   ];
 }
-
