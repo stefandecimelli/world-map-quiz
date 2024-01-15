@@ -3,7 +3,7 @@ import style from "./App.module.css"
 import 'leaflet/dist/leaflet.css';
 import { features } from "./assets/countries.json"
 import { Feature, GeoJsonObject } from 'geojson';
-import { ChangeEvent, useEffect, useMemo, useState } from 'react';
+import { ChangeEvent, useEffect, useMemo, useRef, useState } from 'react';
 import L from 'leaflet';
 
 const DEFAULT_TIMER = 1200; // Seconds
@@ -105,23 +105,41 @@ function App() {
 
 export default App
 
-function Map({ selectedCountries, x, y }: { selectedCountries: GeoJsonObject[], x: number, y: number }) {
+function Map({ selectedCountries, x, y }: { selectedCountries: Feature[], x: number, y: number }) {
+  const geoJsonRef = useRef<L.GeoJSON>(null);
+  const mapRef = useRef<L.Map | null>(null);
+
+  useEffect(() => {
+    if (geoJsonRef.current) {
+      geoJsonRef.current.clearLayers();
+      geoJsonRef.current.addData(selectedCountries as never);
+    }
+  }, [selectedCountries]);
+
+  const scrollTo = (x: number, y: number) => {
+    if (mapRef.current) {
+      mapRef.current.flyTo([x, y]);
+    }
+  };
+
+  useEffect(() => scrollTo(x, y), [x, y]);
+
   return <MapContainer
     center={[x, y]}
     zoom={4}
     maxZoom={5}
     minZoom={3}
     className={style.map}
-    key={`${x}${y}`}
     maxBoundsViscosity={1}
     maxBounds={[[-90, -180], [90, 180]]}
+    ref={mapRef}
   >
     <TileLayer
       url="http://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}.png"
       attribution="&copy;OpenStreetMap, &copy;CartoDB"
       noWrap
     />
-    <GeoJSON data={{ "type": "FeatureCollection", "features": selectedCountries } as GeoJsonObject} />
+    <GeoJSON data={{ type: "FeatureCollection", features: selectedCountries } as never} ref={geoJsonRef} />
   </MapContainer>
 }
 
