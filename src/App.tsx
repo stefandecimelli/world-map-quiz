@@ -70,10 +70,20 @@ function App() {
   return (
     <div>
       <div className={style.mapContainer}>
-        <MapContainer center={[x, y]} zoom={4} className={style.map} key={`${x}${y}`}>
+        <MapContainer
+          center={[x, y]}
+          zoom={4}
+          maxZoom={5}
+          minZoom={3}
+          className={style.map}
+          key={`${x}${y}`}
+          maxBoundsViscosity={1}
+          maxBounds={[[-90, -180], [90, 180]]}
+        >
           <TileLayer
             url="http://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}.png"
             attribution="&copy;OpenStreetMap, &copy;CartoDB"
+            noWrap
           />
           <GeoJSON data={{ "type": "FeatureCollection", "features": selectedCountries } as GeoJsonObject} />
         </MapContainer>
