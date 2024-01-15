@@ -51,7 +51,7 @@ button {
 
 .inputContainer {
   position: absolute;
-  bottom: 5vw;
+  bottom: 2rem;
   z-index: 99999;
   /* right: calc(50vw - var(--input-box-width)/2); */
   background-color: rgb(0, 0, 100, 0.6);
