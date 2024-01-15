@@ -3,23 +3,37 @@ import style from "./App.module.css"
 import 'leaflet/dist/leaflet.css';
 import { features } from "./assets/countries.json"
 import { Feature, GeoJsonObject } from 'geojson';
-import { ChangeEvent, useMemo, useState } from 'react';
+import { ChangeEvent, useEffect, useMemo, useState } from 'react';
 import L from 'leaflet';
+
+const DEFAULT_TIMER = 3; // Seconds
 
 function App() {
   const [selectedCountries, setSelectedCountries] = useState<GeoJsonObject[]>([]);
   const [selectedCountryIndexes, setSelectedCountryIndexes] = useState<number[]>([]);
   const [inputValue, setInputValue] = useState("");
   const [displayModel, setDisplayModel] = useState(false);
+  const [seconds, setSeconds] = useState(DEFAULT_TIMER);
   const [x, setX] = useState(50);
   const [y, setY] = useState(0);
-
-  console.log(selectedCountryIndexes);
 
   const countryNames = useMemo(() => (features as Feature[]).map(country => ({
     names: getCountryNames(country),
     co: new L.GeoJSON(country as GeoJsonObject)
   })), [])
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      if (seconds > 1) {
+        setSeconds(seconds - 1);
+      }
+      else {
+        clearInterval(timer);
+        handleQuit();
+      }
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [seconds]);
 
   const handleInput = async (e: ChangeEvent<HTMLInputElement>) => {
     const countryGuess = e.target.value;
@@ -38,6 +52,7 @@ function App() {
 
   const handleQuit = () => {
     setDisplayModel(true);
+    setSeconds(0);
   }
 
   const handleRestart = () => {
@@ -46,6 +61,7 @@ function App() {
     setDisplayModel(false);
     setX(50);
     setY(0);
+    setSeconds(DEFAULT_TIMER);
   }
 
   const numberAchieved = selectedCountryIndexes.length;
@@ -68,18 +84,21 @@ function App() {
         </div>
         <div className={style.quitButtonContainer}>
           <button className={style.quitButton} onClick={handleQuit}>Quit</button>
+          <div>{seconds}s</div>
         </div>
       </div>
       {displayModel && <div className={style.modal}>
         <div className={style.modalContent}>
           <button className={style.closeModel} onClick={handleRestart}>Restart</button>
           <h6>Score: {numberAchieved}/{numberAttempted} {(numberAchieved / numberAttempted * 100).toFixed(2)}%</h6>
+          <u>Missed:</u>
           <div>
             {
               countryNames.map((_, i) => {
                 const altNames = Array.from(countryNames[i]?.names).join(", ");
                 const mainName = features[i]?.properties?.NAME;
-                return i in selectedCountryIndexes ? null : <p>{mainName} <span>({altNames})</span></p>
+                console.log(altNames, mainName, i, selectedCountryIndexes)
+                return selectedCountryIndexes.includes(i) ? null : <p key={mainName}>{mainName} <span>({altNames})</span></p>
               })
             }
           </div>
