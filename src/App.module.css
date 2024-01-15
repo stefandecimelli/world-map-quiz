@@ -117,3 +117,7 @@ label {
   text-decoration: none;
   cursor: pointer;
 }
+
+h6 {
+  font-size: 24px;
+}

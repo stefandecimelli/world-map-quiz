@@ -14,6 +14,8 @@ function App() {
   const [x, setX] = useState(50);
   const [y, setY] = useState(0);
 
+  console.log(selectedCountryIndexes);
+
   const countryNames = useMemo(() => (features as Feature[]).map(country => ({
     names: getCountryNames(country),
     co: new L.GeoJSON(country as GeoJsonObject)
@@ -21,7 +23,7 @@ function App() {
 
   const handleInput = async (e: ChangeEvent<HTMLInputElement>) => {
     const countryGuess = e.target.value;
-    const i = countryNames.findIndex(c => c.names.has(countryGuess.toLowerCase()));
+    const i = countryNames.findIndex(c => c.names.has(countryGuess.toLowerCase().trim()));
     if (i >= 0 && !selectedCountryIndexes.includes(i)) {
       setSelectedCountryIndexes([...selectedCountryIndexes, i])
       setSelectedCountries([...selectedCountries, features[i] as GeoJsonObject]);
@@ -35,12 +37,19 @@ function App() {
   }
 
   const handleQuit = () => {
+    setDisplayModel(true);
+  }
+
+  const handleRestart = () => {
     setSelectedCountries([]);
     setSelectedCountryIndexes([]);
-    setDisplayModel(true);
+    setDisplayModel(false);
     setX(50);
     setY(0);
   }
+
+  const numberAchieved = selectedCountryIndexes.length;
+  const numberAttempted = features.length;
 
   return (
     <div>
@@ -55,7 +64,7 @@ function App() {
         <div className={style.inputContainer}>
           <label htmlFor="guess" >Enter a country:</label>
           <input id="guess" className={style.input} type='text' onChange={handleInput} value={inputValue} />
-          <div className={style.indicator}>{selectedCountryIndexes.length}/{features.length}</div>
+          <div className={style.indicator}>{numberAchieved}/{numberAttempted}</div>
         </div>
         <div className={style.quitButtonContainer}>
           <button className={style.quitButton} onClick={handleQuit}>Quit</button>
@@ -63,12 +72,14 @@ function App() {
       </div>
       {displayModel && <div className={style.modal}>
         <div className={style.modalContent}>
-          <button className={style.closeModel} onClick={() => setDisplayModel(false)}>Restart</button>
-          <p>Countries Missed:</p>
+          <button className={style.closeModel} onClick={handleRestart}>Restart</button>
+          <h6>Score: {numberAchieved}/{numberAttempted} {(numberAchieved / numberAttempted * 100).toFixed(2)}%</h6>
           <div>
             {
-              Array.from({length: features.length}).filter((_, i) => !(i in selectedCountryIndexes)).map((_, i) => {
-                return <p>{features[i]?.properties?.NAME} <span>({Array.from(countryNames[i]?.names).join(", ")})</span></p>
+              countryNames.map((_, i) => {
+                const altNames = Array.from(countryNames[i]?.names).join(", ");
+                const mainName = features[i]?.properties?.NAME;
+                return i in selectedCountryIndexes ? null : <p>{mainName} <span>({altNames})</span></p>
               })
             }
           </div>
@@ -80,20 +91,27 @@ function App() {
 
 export default App
 
-function getCountryNames(country: Feature): Set<string> {
-  return new Set([
-    country.properties?.NAME?.toLowerCase().replace(".", ""),
-    country.properties?.NAME?.toLowerCase().replace("the ", "").replace(".", ""),
-    country.properties?.ADMIN?.toLowerCase().replace(".", ""),
-    country.properties?.ADMIN?.toLowerCase().replace("the ", "").replace(".", ""),
-    country.properties?.NAME_SORT?.toLowerCase().replace(".", ""),
-    country.properties?.NAME_SORT?.toLowerCase().replace("the ", "").replace(".", ""),
-    country.properties?.NAME_LONG?.toLowerCase().replace(".", ""),
-    country.properties?.NAME_LONG?.toLowerCase().replace("the ", "").replace(".", ""),
-    country.properties?.BRK_NAME?.toLowerCase().replace(".", ""),
-    country.properties?.BRK_NAME?.toLowerCase().replace("the ", "").replace(".", ""),
-    country.properties?.FORMAL_EN?.toLowerCase().replace(".", ""),
-    country.properties?.FORMAL_EN?.toLowerCase().replace("the ", "").replace(".", ""),
-  ]);
+function getCountryNames(country: Feature) {
+  const keys = ['NAME', 'ADMIN', 'NAME_SORT', 'NAME_LONG', 'BRK_NAME', 'FORMAL_EN'];
+  const names = new Set();
+
+  keys.forEach(key => {
+    const processedNames = processString(country.properties?.[key]);
+    if (processedNames) {
+      processedNames.forEach(name => names.add(name));
+    }
+  });
+
+  return names;
+}
+
+function processString(str: string) {
+  if (!str) return null;
+  const lowerCased = str.toLowerCase();
+  const noAccents = lowerCased.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+  return [
+    noAccents.replace(".", "").trim(),
+    noAccents.replace("the ", "").replace(".", "").trim(),
+  ];
 }
 
